@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "pngnet": {
+      "commandName": "Project",
+      "commandLineArgs": "tomy.jpeg"
+    }
+  }
+}
