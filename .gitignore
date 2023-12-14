@@ -397,5 +397,7 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
-.images/*
+#added for this particular project
+images/*
+!images/colores32.bmp
 *.sln
