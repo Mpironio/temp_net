@@ -12,14 +12,15 @@ namespace pngnet
             string imagesDir = Directory.GetParent(projDir).Parent.FullName + @"\images\";
 
             var watch = System.Diagnostics.Stopwatch.StartNew();
-            AsBitmap(imagesDir, args[0]);
+            //AsBitmap(imagesDir, args[0]);
+            AsSIMD(imagesDir, args[0]);
             watch.Stop();
             Console.WriteLine(watch.ElapsedMilliseconds);
         }
 
         private static void AsBitmap(string path, string filename)
         {
-        
+
             var filenameNoExt = Path.GetFileNameWithoutExtension(filename);
             using (var img = Image.FromFile(path + filename))
             {
@@ -56,22 +57,34 @@ namespace pngnet
                 var fs = File.Create(path + filenameNoExt + "_bmp.png");
                 bmp.Save(fs, System.Drawing.Imaging.ImageFormat.Png);
             }
-            
+
         }
 
         private static void AsSIMD(string path, string filename)
         {
-
-            using (var fs = File.OpenRead(path))
+            var filenameNoExt = Path.GetFileNameWithoutExtension(filename);
+            using (var fs = File.OpenRead(path + filename))
             {
-                for(int i = 0; i < fs.Length; i += 32)
+                //with Vector256 I can operate with 8 pixels at once
+                if (fs.Length % 32 == 0)
                 {
-                    byte[] buff = new byte[8 * 4]; // #pixels that fit into 256 bits * size of a pixel in bytes
-                    fs.ReadExactly(buff, i, 32);
-                    //Vector256<byte> data = Vector256.Create(); ;
+                    byte[] buff = new byte[fs.Length];
+                    for (int i = 0; i < fs.Length; i += 32)
+                    {
+                        fs.Read(buff);
+                        Vector256<byte> img = Vector256.Create(buff);
+                        var newImg = Vector256.Add<byte>(img, img);
+                        newImg.CopyTo<byte>(buff, i);
+                        
+                    }
+                    var newFile = File.Create(path + filenameNoExt + "_SIMD.png");
+                    newFile.Write(buff);
                 }
-                
-                
+                else
+                {
+                    Console.WriteLine("Not supported");
+                }
+
             }
         }
     }

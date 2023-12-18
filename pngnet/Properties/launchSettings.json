@@ -2,7 +2,7 @@
   "profiles": {
     "pngnet": {
       "commandName": "Project",
-      "commandLineArgs": "tomy.jpeg"
+      "commandLineArgs": "colores32.bmp"
     }
   }
 }
